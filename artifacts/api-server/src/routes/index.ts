@@ -6,6 +6,7 @@ import controlsRouter from "./controls";
 import alertsRouter from "./alerts";
 import recommendationsRouter from "./recommendations";
 import dashboardRouter from "./dashboard";
+import analyticsRouter from "./analytics";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(controlsRouter);
 router.use(alertsRouter);
 router.use(recommendationsRouter);
 router.use(dashboardRouter);
+router.use(analyticsRouter);
 
 export default router;

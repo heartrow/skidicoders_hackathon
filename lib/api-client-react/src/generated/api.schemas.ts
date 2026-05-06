@@ -23,6 +23,7 @@ export interface Zone {
   cropType: string;
   rackCount: number;
   status: ZoneStatus;
+  autoMode: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,6 +58,7 @@ export interface UpdateZoneBody {
   cropType?: string;
   rackCount?: number;
   status?: UpdateZoneBodyStatus;
+  autoMode?: boolean;
 }
 
 export interface SensorReading {
@@ -194,6 +196,34 @@ export interface DashboardSummary {
   pendingRecommendations: number;
 }
 
+export interface ResourceZoneSummary {
+  zoneId: number;
+  zoneName: string;
+  totalPowerKwh: number;
+  totalCostUsd: number;
+  avgDailyPowerKwh: number;
+  avgDailyCostUsd: number;
+  days: number;
+}
+
+export type MonthlyTrendItemZonesItem = {
+  zoneId: number;
+  zoneName: string;
+  powerKwh: number;
+  costUsd: number;
+};
+
+export interface MonthlyTrendItem {
+  /** 1-12 */
+  month: number;
+  year: number;
+  /** Short month label e.g. "Jan" */
+  label: string;
+  totalPowerKwh: number;
+  totalCostUsd: number;
+  zones: MonthlyTrendItemZonesItem[];
+}
+
 export type GetSensorHistoryParams = {
   zoneId: number;
   metric?: GetSensorHistoryMetric;
@@ -222,3 +252,15 @@ export const ListAlertsStatus = {
   acknowledged: "acknowledged",
   resolved: "resolved",
 } as const;
+
+export type GetResourceAnalyticsParams = {
+  year?: number;
+  /**
+   * 1-12, omit for full year
+   */
+  month?: number;
+};
+
+export type GetMonthlyTrendsParams = {
+  year?: number;
+};

@@ -10,6 +10,7 @@ import Sensors from "@/pages/Sensors";
 import Controls from "@/pages/Controls";
 import Alerts from "@/pages/Alerts";
 import Recommendations from "@/pages/Recommendations";
+import Analytics from "@/pages/Analytics";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -32,6 +33,7 @@ function Router() {
         <Route path="/controls" component={Controls} />
         <Route path="/alerts" component={Alerts} />
         <Route path="/recommendations" component={Recommendations} />
+        <Route path="/analytics" component={Analytics} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

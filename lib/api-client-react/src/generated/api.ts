@@ -22,10 +22,14 @@ import type {
   CreateSensorReadingBody,
   CreateZoneBody,
   DashboardSummary,
+  GetMonthlyTrendsParams,
+  GetResourceAnalyticsParams,
   GetSensorHistoryParams,
   HealthStatus,
   ListAlertsParams,
+  MonthlyTrendItem,
   Recommendation,
+  ResourceZoneSummary,
   SensorReading,
   UpdateControlBody,
   UpdateZoneBody,
@@ -1256,6 +1260,206 @@ export function useGetDashboardSummary<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetDashboardSummaryQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get resource usage (power & cost) per zone for a given period
+ */
+export const getGetResourceAnalyticsUrl = (
+  params?: GetResourceAnalyticsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/analytics/resource?${stringifiedParams}`
+    : `/api/analytics/resource`;
+};
+
+export const getResourceAnalytics = async (
+  params?: GetResourceAnalyticsParams,
+  options?: RequestInit,
+): Promise<ResourceZoneSummary[]> => {
+  return customFetch<ResourceZoneSummary[]>(
+    getGetResourceAnalyticsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetResourceAnalyticsQueryKey = (
+  params?: GetResourceAnalyticsParams,
+) => {
+  return [`/api/analytics/resource`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetResourceAnalyticsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getResourceAnalytics>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetResourceAnalyticsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getResourceAnalytics>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetResourceAnalyticsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getResourceAnalytics>>
+  > = ({ signal }) =>
+    getResourceAnalytics(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getResourceAnalytics>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetResourceAnalyticsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getResourceAnalytics>>
+>;
+export type GetResourceAnalyticsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get resource usage (power & cost) per zone for a given period
+ */
+
+export function useGetResourceAnalytics<
+  TData = Awaited<ReturnType<typeof getResourceAnalytics>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetResourceAnalyticsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getResourceAnalytics>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetResourceAnalyticsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get monthly power and cost totals for trend comparison
+ */
+export const getGetMonthlyTrendsUrl = (params?: GetMonthlyTrendsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/analytics/monthly?${stringifiedParams}`
+    : `/api/analytics/monthly`;
+};
+
+export const getMonthlyTrends = async (
+  params?: GetMonthlyTrendsParams,
+  options?: RequestInit,
+): Promise<MonthlyTrendItem[]> => {
+  return customFetch<MonthlyTrendItem[]>(getGetMonthlyTrendsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMonthlyTrendsQueryKey = (
+  params?: GetMonthlyTrendsParams,
+) => {
+  return [`/api/analytics/monthly`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMonthlyTrendsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMonthlyTrends>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetMonthlyTrendsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMonthlyTrends>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMonthlyTrendsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMonthlyTrends>>
+  > = ({ signal }) => getMonthlyTrends(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMonthlyTrends>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMonthlyTrendsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMonthlyTrends>>
+>;
+export type GetMonthlyTrendsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get monthly power and cost totals for trend comparison
+ */
+
+export function useGetMonthlyTrends<
+  TData = Awaited<ReturnType<typeof getMonthlyTrends>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetMonthlyTrendsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMonthlyTrends>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMonthlyTrendsQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

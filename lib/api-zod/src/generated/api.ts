@@ -24,6 +24,7 @@ export const ListZonesResponseItem = zod.object({
   cropType: zod.string(),
   rackCount: zod.number(),
   status: zod.enum(["active", "idle", "maintenance"]),
+  autoMode: zod.boolean(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -52,6 +53,7 @@ export const GetZoneResponse = zod.object({
   cropType: zod.string(),
   rackCount: zod.number(),
   status: zod.enum(["active", "idle", "maintenance"]),
+  autoMode: zod.boolean(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -68,6 +70,7 @@ export const UpdateZoneBody = zod.object({
   cropType: zod.string().optional(),
   rackCount: zod.number().optional(),
   status: zod.enum(["active", "idle", "maintenance"]).optional(),
+  autoMode: zod.boolean().optional(),
 });
 
 export const UpdateZoneResponse = zod.object({
@@ -76,6 +79,7 @@ export const UpdateZoneResponse = zod.object({
   cropType: zod.string(),
   rackCount: zod.number(),
   status: zod.enum(["active", "idle", "maintenance"]),
+  autoMode: zod.boolean(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -278,3 +282,48 @@ export const GetDashboardSummaryResponse = zod.object({
   activeControls: zod.number(),
   pendingRecommendations: zod.number(),
 });
+
+/**
+ * @summary Get resource usage (power & cost) per zone for a given period
+ */
+export const GetResourceAnalyticsQueryParams = zod.object({
+  year: zod.coerce.number().optional(),
+  month: zod.coerce.number().optional(),
+});
+
+export const GetResourceAnalyticsResponseItem = zod.object({
+  zoneId: zod.number(),
+  zoneName: zod.string(),
+  totalPowerKwh: zod.number(),
+  totalCostUsd: zod.number(),
+  avgDailyPowerKwh: zod.number(),
+  avgDailyCostUsd: zod.number(),
+  days: zod.number(),
+});
+export const GetResourceAnalyticsResponse = zod.array(
+  GetResourceAnalyticsResponseItem,
+);
+
+/**
+ * @summary Get monthly power and cost totals for trend comparison
+ */
+export const GetMonthlyTrendsQueryParams = zod.object({
+  year: zod.coerce.number().optional(),
+});
+
+export const GetMonthlyTrendsResponseItem = zod.object({
+  month: zod.number().describe("1-12"),
+  year: zod.number(),
+  label: zod.string().describe('Short month label e.g. \"Jan\"'),
+  totalPowerKwh: zod.number(),
+  totalCostUsd: zod.number(),
+  zones: zod.array(
+    zod.object({
+      zoneId: zod.number(),
+      zoneName: zod.string(),
+      powerKwh: zod.number(),
+      costUsd: zod.number(),
+    }),
+  ),
+});
+export const GetMonthlyTrendsResponse = zod.array(GetMonthlyTrendsResponseItem);
