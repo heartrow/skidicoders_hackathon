@@ -1,13 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Layers, Activity, Sliders, Bell, Lightbulb, Leaf, BarChart2 } from "lucide-react";
+import { LayoutDashboard, Layers, Bell, Lightbulb, Leaf, BarChart2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useListAlerts } from "@workspace/api-client-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/zones", label: "Farm Zones", icon: Layers },
-  { path: "/sensors", label: "Sensors", icon: Activity },
-  { path: "/controls", label: "Controls", icon: Sliders },
   { path: "/alerts", label: "Alerts", icon: Bell },
   { path: "/recommendations", label: "AI Insights", icon: Lightbulb },
   { path: "/analytics", label: "Analytics", icon: BarChart2 },

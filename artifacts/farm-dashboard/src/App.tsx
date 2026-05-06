@@ -6,8 +6,6 @@ import { Layout } from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
 import Zones from "@/pages/Zones";
 import ZoneDetail from "@/pages/ZoneDetail";
-import Sensors from "@/pages/Sensors";
-import Controls from "@/pages/Controls";
 import Alerts from "@/pages/Alerts";
 import Recommendations from "@/pages/Recommendations";
 import Analytics from "@/pages/Analytics";
@@ -29,8 +27,6 @@ function Router() {
         <Route path="/" component={Dashboard} />
         <Route path="/zones" component={Zones} />
         <Route path="/zones/:id" component={ZoneDetail} />
-        <Route path="/sensors" component={Sensors} />
-        <Route path="/controls" component={Controls} />
         <Route path="/alerts" component={Alerts} />
         <Route path="/recommendations" component={Recommendations} />
         <Route path="/analytics" component={Analytics} />

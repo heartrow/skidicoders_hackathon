@@ -39,16 +39,17 @@ An intelligent vertical farming dashboard that monitors IoT sensor data, control
 - Queries auto-refresh every 30s (`refetchInterval: 30000`) to simulate live IoT data updates
 - Dashboard summary endpoint (`GET /api/dashboard/summary`) uses SQL aggregates (avg, count filter) for efficient single-query stats
 - Sensor history uses `DISTINCT ON (zone_id)` PostgreSQL feature to efficiently return latest reading per zone
+- Custom plant profiles are stored in `localStorage` (key `vertigrow_custom_profiles`) — no DB round-trip needed; `getAllProfiles()` merges built-in + custom profiles at runtime
+- Sensors and Controls pages are removed from the nav; all per-zone sensor/control functionality lives in Zone Detail tabs
 
 ## Product
 
 - **Dashboard** — real-time overview: zone counts, active alerts, avg sensor readings, recent alerts and AI insights
-- **Farm Zones** — full CRUD for farm zones (name, crop type, rack count, status)
-- **Zone Detail** — per-zone sensor readings, 24h history chart (Recharts), control toggles
-- **Sensor Monitor** — live readings with visual gauges showing optimal ranges for all 4 metrics
-- **Control Systems** — toggle LED lighting, cooling fans, water pumps, nutrient pumps with intensity sliders
+- **Farm Zones** — full CRUD for farm zones; crop type is a dropdown (8 built-in + custom crops); custom crops can have user-defined or AI-generated control presets stored in localStorage
+- **Zone Detail** — 3-tab layout per zone: Overview (sensor cards + combined chart + control status), Sensors (live gauges + 24h history with "All in One" / "Separate" graph toggle), Controls (auto-mode toggle + full control cards with intensity sliders)
 - **Alerts** — severity-coded alerts (critical/warning/info) with acknowledge flow, tabbed by status
-- **AI Recommendations** — categorised insights (harvest timing, nutrient adjustment, lighting, watering, environment)
+- **AI Insights** — categorised recommendations (harvest timing, nutrient adjustment, lighting, watering, environment)
+- **Analytics** — resource consumption + cost tracking; monthly trends, zone breakdown, cost analysis tabs; YoY comparison (2025 vs 2026)
 
 ## Gotchas
 
