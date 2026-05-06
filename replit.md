@@ -1,10 +1,11 @@
-# [Project name]
+# VertiGrow — Vertical Farm Dashboard
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+An intelligent vertical farming dashboard that monitors IoT sensor data, controls automated systems, tracks predictive alerts, and surfaces AI-driven crop recommendations for urban indoor farms.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/farm-dashboard run dev` — run the frontend (port 20562)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
@@ -14,32 +15,48 @@ _Replace the heading above with the project's name, and this line with one sente
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
+- Frontend: React + Vite, Wouter routing, TanStack Query, Recharts, shadcn/ui
+- API: Express 5, OpenAPI-first with Orval codegen
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
+- API codegen: Orval (from OpenAPI spec → React Query hooks + Zod schemas)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth)
+- `lib/api-client-react/src/generated/` — generated React Query hooks
+- `lib/api-zod/src/generated/api.ts` — generated Zod schemas (used by server)
+- `lib/db/src/schema/` — Drizzle table definitions (zones, sensor_readings, controls, alerts, recommendations)
+- `artifacts/api-server/src/routes/` — Express route handlers
+- `artifacts/farm-dashboard/src/pages/` — React page components
+- `artifacts/farm-dashboard/src/index.css` — theme (dark forest green + warm amber)
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- OpenAPI-first: all API contracts defined in `openapi.yaml`, codegen produces both typed React Query hooks and Zod validators — no hand-written types
+- `lib/api-spec/package.json` codegen script overwrites `lib/api-zod/src/index.ts` after Orval runs to avoid duplicate export conflicts from the Orval barrel generator
+- Queries auto-refresh every 30s (`refetchInterval: 30000`) to simulate live IoT data updates
+- Dashboard summary endpoint (`GET /api/dashboard/summary`) uses SQL aggregates (avg, count filter) for efficient single-query stats
+- Sensor history uses `DISTINCT ON (zone_id)` PostgreSQL feature to efficiently return latest reading per zone
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- **Dashboard** — real-time overview: zone counts, active alerts, avg sensor readings, recent alerts and AI insights
+- **Farm Zones** — full CRUD for farm zones (name, crop type, rack count, status)
+- **Zone Detail** — per-zone sensor readings, 24h history chart (Recharts), control toggles
+- **Sensor Monitor** — live readings with visual gauges showing optimal ranges for all 4 metrics
+- **Control Systems** — toggle LED lighting, cooling fans, water pumps, nutrient pumps with intensity sliders
+- **Alerts** — severity-coded alerts (critical/warning/info) with acknowledge flow, tabbed by status
+- **AI Recommendations** — categorised insights (harvest timing, nutrient adjustment, lighting, watering, environment)
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Always run codegen after changing `openapi.yaml`: `pnpm --filter @workspace/api-spec run codegen`
+- The codegen script overwrites `lib/api-zod/src/index.ts` — do not manually edit that file
+- `date-fns` is used for relative timestamps on the frontend (already installed via `package.json`)
 
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- See `lib/api-spec/openapi.yaml` for the full API contract

@@ -3,13 +3,26 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: VertiGrow Vertical Farming Dashboard API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: zones
+    description: Farm zone management
+  - name: sensors
+    description: Sensor readings and history
+  - name: controls
+    description: Automated control systems
+  - name: alerts
+    description: Predictive alerts and anomalies
+  - name: recommendations
+    description: AI-driven crop recommendations
+  - name: dashboard
+    description: Dashboard summary and aggregates
+
 paths:
   /healthz:
     get:
@@ -24,6 +37,282 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /zones:
+    get:
+      operationId: listZones
+      tags: [zones]
+      summary: List all farm zones
+      responses:
+        "200":
+          description: List of zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Zone"
+    post:
+      operationId: createZone
+      tags: [zones]
+      summary: Create a new farm zone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateZoneBody"
+      responses:
+        "201":
+          description: Created zone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Zone"
+        "400":
+          description: Validation error
+
+  /zones/{id}:
+    get:
+      operationId: getZone
+      tags: [zones]
+      summary: Get a zone by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Zone detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Zone"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateZone
+      tags: [zones]
+      summary: Update a zone
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateZoneBody"
+      responses:
+        "200":
+          description: Updated zone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Zone"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteZone
+      tags: [zones]
+      summary: Delete a zone
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /sensors:
+    get:
+      operationId: listSensors
+      tags: [sensors]
+      summary: Get latest sensor readings for all zones
+      responses:
+        "200":
+          description: Latest sensor readings per zone
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SensorReading"
+    post:
+      operationId: createSensorReading
+      tags: [sensors]
+      summary: Ingest a new sensor reading (simulated IoT input)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSensorReadingBody"
+      responses:
+        "201":
+          description: Created reading
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SensorReading"
+        "400":
+          description: Validation error
+
+  /sensors/history:
+    get:
+      operationId: getSensorHistory
+      tags: [sensors]
+      summary: Get historical sensor readings for a zone
+      parameters:
+        - name: zoneId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: metric
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [temperature, humidity, soilMoisture, phLevel]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 48
+      responses:
+        "200":
+          description: Historical readings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SensorReading"
+
+  /controls:
+    get:
+      operationId: listControls
+      tags: [controls]
+      summary: List all control system states
+      responses:
+        "200":
+          description: List of control states
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Control"
+
+  /controls/{id}:
+    patch:
+      operationId: updateControl
+      tags: [controls]
+      summary: Update a control state (toggle LED, fan, pump)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateControlBody"
+      responses:
+        "200":
+          description: Updated control
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Control"
+        "404":
+          description: Not found
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List alerts (anomalies and warnings)
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [active, acknowledged, resolved]
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /alerts/{id}/acknowledge:
+    patch:
+      operationId: acknowledgeAlert
+      tags: [alerts]
+      summary: Acknowledge an alert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Acknowledged alert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+        "404":
+          description: Not found
+
+  /recommendations:
+    get:
+      operationId: listRecommendations
+      tags: [recommendations]
+      summary: List AI-driven crop recommendations
+      responses:
+        "200":
+          description: List of recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recommendation"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get aggregated dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +323,241 @@ components:
       required:
         - status
 
+    Zone:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        cropType:
+          type: string
+        rackCount:
+          type: integer
+        status:
+          type: string
+          enum: [active, idle, maintenance]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - cropType
+        - rackCount
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateZoneBody:
+      type: object
+      properties:
+        name:
+          type: string
+        cropType:
+          type: string
+        rackCount:
+          type: integer
+        status:
+          type: string
+          enum: [active, idle, maintenance]
+      required:
+        - name
+        - cropType
+        - rackCount
+
+    UpdateZoneBody:
+      type: object
+      properties:
+        name:
+          type: string
+        cropType:
+          type: string
+        rackCount:
+          type: integer
+        status:
+          type: string
+          enum: [active, idle, maintenance]
+
+    SensorReading:
+      type: object
+      properties:
+        id:
+          type: integer
+        zoneId:
+          type: integer
+        temperature:
+          type: number
+          description: Temperature in Celsius
+        humidity:
+          type: number
+          description: Relative humidity percentage
+        soilMoisture:
+          type: number
+          description: Soil moisture percentage
+        phLevel:
+          type: number
+          description: Water pH level
+        recordedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - zoneId
+        - temperature
+        - humidity
+        - soilMoisture
+        - phLevel
+        - recordedAt
+
+    CreateSensorReadingBody:
+      type: object
+      properties:
+        zoneId:
+          type: integer
+        temperature:
+          type: number
+        humidity:
+          type: number
+        soilMoisture:
+          type: number
+        phLevel:
+          type: number
+      required:
+        - zoneId
+        - temperature
+        - humidity
+        - soilMoisture
+        - phLevel
+
+    Control:
+      type: object
+      properties:
+        id:
+          type: integer
+        zoneId:
+          type: integer
+        type:
+          type: string
+          enum: [led_lighting, cooling_fan, water_pump, nutrient_pump]
+        isActive:
+          type: boolean
+        intensity:
+          type: ["integer", "null"]
+          description: Intensity percentage (0-100), null if not applicable
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - zoneId
+        - type
+        - isActive
+        - updatedAt
+
+    UpdateControlBody:
+      type: object
+      properties:
+        isActive:
+          type: boolean
+        intensity:
+          type: ["integer", "null"]
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+        zoneId:
+          type: ["integer", "null"]
+        severity:
+          type: string
+          enum: [critical, warning, info]
+        type:
+          type: string
+          enum: [temperature_high, temperature_low, humidity_high, humidity_low, ph_out_of_range, soil_dry, reservoir_low, system_offline]
+        message:
+          type: string
+        status:
+          type: string
+          enum: [active, acknowledged, resolved]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - severity
+        - type
+        - message
+        - status
+        - createdAt
+        - updatedAt
+
+    Recommendation:
+      type: object
+      properties:
+        id:
+          type: integer
+        zoneId:
+          type: ["integer", "null"]
+        category:
+          type: string
+          enum: [harvest_timing, nutrient_adjustment, lighting_schedule, watering_cycle, environmental_control]
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [high, medium, low]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - category
+        - title
+        - description
+        - priority
+        - createdAt
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalZones:
+          type: integer
+        activeZones:
+          type: integer
+        activeAlerts:
+          type: integer
+        criticalAlerts:
+          type: integer
+        avgTemperature:
+          type: number
+        avgHumidity:
+          type: number
+        avgPhLevel:
+          type: number
+        avgSoilMoisture:
+          type: number
+        activeControls:
+          type: integer
+        pendingRecommendations:
+          type: integer
+      required:
+        - totalZones
+        - activeZones
+        - activeAlerts
+        - criticalAlerts
+        - avgTemperature
+        - avgHumidity
+        - avgPhLevel
+        - avgSoilMoisture
+        - activeControls
+        - pendingRecommendations

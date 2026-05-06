@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "VertiGrow — Vertical Farm Dashboard"
+version = "1.0.0"
+id = "artifacts/farm-dashboard"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20562
+
+[services.development]
+run = "pnpm --filter @workspace/farm-dashboard run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/farm-dashboard", "run", "build" ]
+publicDir = "artifacts/farm-dashboard/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20562"
+BASE_PATH = "/"
